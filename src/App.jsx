@@ -1,109 +1,84 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import './App.css';
-import squaresReducer from './Reducers/squaresReducer';
+import axios from 'axios';
+import booksReducer from './Reducers/booksReducer';
 
 function App() {
-  const [squares, dispachSquares] = useReducer(squaresReducer, []);
-
-  const [inputNumber, setInputNumber] = useState('');
-
-  // const [inputRange, setInputRange] = useState([{ value: 0 }, { value: 9999 }]);
-  const [range, setRange] = useState('0');
-
-  const doRange = useRef(true);
+  const [books, dispachBooks] = useReducer(booksReducer, []);
 
   useEffect(() => {
-    if (!doRange.current) {
-      return;
-    }
-    doRange.current = false;
-    setTimeout(() => (doRange.current = true), 20);
+    axios.get('http://in3.dev/knygos/').then((res) => {
+      const action = {
+        type: 'booksList',
+        payload: res.data,
+      };
+      dispachBooks(action);
+    });
+  }, []);
 
-    const action = {
-      type: 'range',
-      payload: range,
-    };
-    dispachSquares(action);
-  }, [range]);
+  // useEffect(() => {
+  //   axios.get('http://in3.dev.knygos/').then((res) => {
+  //     const action = {
+  //       type: 'reload',
+  //       payload: res.data,
+  //     };
+  //     dispachBooks(action);
+  //   });
+  // }, []);
 
-  const addSquares = () => {
+  const filterByPrice = () => {
     const action = {
-      type: 'add',
+      type: 'filter_by_price',
     };
-    dispachSquares(action);
-  };
-
-  const sqRemove = (id) => {
-    const action = {
-      type: 'remove',
-      payload: id,
-    };
-    dispachSquares(action);
+    dispachBooks(action);
   };
 
   const filterReset = () => {
     const action = {
       type: 'reset',
     };
-    dispachSquares(action);
+    dispachBooks(action);
   };
 
-  // const input = useRef();
-  // const discardSquare = () => {
-  //   const action = {
-  //     type: 'discard',
-  //     payload: input.current.value,
-  //   };
-  //   dispachSquares(action);
-  // };
-
-  const hideSquare = () => {
+  const reloadBooks = () => {
     const action = {
-      type: 'hide',
-      payload: inputNumber,
+      type: 'reload',
+      payload: window.location.reload(),
     };
-    setInputNumber('');
-    dispachSquares(action);
+    dispachBooks(action);
   };
+
+  useEffect(() => {
+    axios.get('https://in3.dev/knygos/types/').then((res) => {
+      const action = {
+        type: 'category',
+        payload: res.data,
+      };
+      dispachBooks(action);
+    });
+  }, []);
 
   return (
     <div className='App'>
       <header className='App-header'>
-        <h1>Learning Reducer</h1>
+        <h2>BOOK LIST REDUCER</h2>
+        {books.length ? (
+          books.map((b) =>
+            b.show ? (
+              <div key={b.id}>
+                {b.title}: <i>{b.price} EUR.</i>
+                <b>{}</b>
+              </div>
+            ) : null
+          )
+        ) : (
+          <div className='lds-hourglass'></div>
+        )}
         <div className='kvc'>
-          {squares
-            ? squares.map((kv) =>
-                kv.show ? (
-                  <div
-                    key={kv.id}
-                    className='kv'
-                    onClick={() => sqRemove(kv.number)}
-                    style={{ background: kv.color }}
-                  >
-                    <i>{kv.number}</i>
-                  </div>
-                ) : null
-              )
-            : null}
+          <button onClick={filterByPrice}>Filter by price</button>
+          <button onClick={filterReset}>Filter reset</button>
+          <button onClick={reloadBooks}>Reload</button>
         </div>
-        <button onClick={addSquares}>ADD</button>
-        <button onClick={filterReset}>Reset filter</button>
-        <input
-          // ref={input}
-          type='text'
-          value={inputNumber}
-          onChange={(e) => setInputNumber(e.target.value)}
-          style={{ width: '50px', fontSize: '30px' }}
-        />
-        <button onClick={hideSquare}>hide square</button>
-        <h2>{range}</h2>
-        <input
-          type='range'
-          min='0'
-          max='999'
-          value={range}
-          onChange={(e) => setRange(e.target.value)}
-        />
       </header>
     </div>
   );
