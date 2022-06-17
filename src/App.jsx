@@ -54,6 +54,16 @@ function App() {
     dispachBooks(action);
   };
 
+  useEffect(() => {
+    axios.get('https://in3.dev/knygos/types/').then((res) => {
+      const action = {
+        type: 'category',
+        payload: res.data,
+      };
+      dispachBooks(action);
+    });
+  }, []);
+
   return (
     <div className='App'>
       <header className='App-header'>

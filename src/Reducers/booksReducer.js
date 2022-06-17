@@ -9,7 +9,7 @@ function booksReducer(state, action) {
       newState = state.map(b => b.price > 13 ? { ...b, show: true } : { ...b, show: false });
       break;
     case 'reset':
-      newState = state.map((b, i) => ({ ...b, show: true }))
+      newState = state.map(b => ({ ...b, show: true }))
       break;
     case 'reload':
       newState = action.payload;
