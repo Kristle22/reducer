@@ -12,7 +12,7 @@ function booksReducer(state, action) {
       newState = state.map(b => ({ ...b, show: true }))
       break;
     case 'reload':
-      newState = action.payload;
+      newState = [];
       break;
     default:
       newState = [...state];

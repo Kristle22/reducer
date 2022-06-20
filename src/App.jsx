@@ -3,13 +3,17 @@ import './App.css';
 import axios from 'axios';
 import booksReducer from './Reducers/booksReducer';
 import typesReducer from './Reducers/typesReducer';
+import { useState } from 'react';
 
 function App() {
   const [books, dispachBooks] = useReducer(booksReducer, []);
 
   const [types, dispachTypes] = useReducer(typesReducer, []);
 
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+
   useEffect(() => {
+    console.log('useEffcet books');
     axios.get('http://in3.dev/knygos/').then((res) => {
       const action = {
         type: 'booksList',
@@ -17,9 +21,11 @@ function App() {
       };
       dispachBooks(action);
     });
-  }, []);
+  }, [lastUpdate]);
+  console.log(lastUpdate);
 
   useEffect(() => {
+    console.log('useEffcet types');
     axios.get('https://in3.dev/knygos/types/').then((res) => {
       localStorage.setItem('book types', JSON.stringify(res.data));
       const bookTypes = JSON.parse(localStorage.getItem('book types'));
@@ -30,7 +36,6 @@ function App() {
       dispachTypes(action);
     });
   }, []);
-  console.log('types', types);
 
   const filterByPrice = () => {
     const action = {
@@ -49,20 +54,10 @@ function App() {
   const reloadBooks = () => {
     const action = {
       type: 'reload',
-      payload: window.location.reload(),
     };
     dispachBooks(action);
+    setLastUpdate(Date.now());
   };
-
-  useEffect(() => {
-    axios.get('https://in3.dev/knygos/types/').then((res) => {
-      const action = {
-        type: 'category',
-        payload: res.data,
-      };
-      dispachBooks(action);
-    });
-  }, []);
 
   return (
     <div className='App'>
